@@ -29,15 +29,7 @@ namespace BookLendingService.Api.Services
         {
             var books = await _repository.GetAllAsync();
 
-            return books.Select(b => new BookDto
-            {
-                Id = b.Id,
-                Title = b.Title,
-                Author = b.Author,
-                ISBN = b.ISBN,
-                PublishedYear = b.PublishedYear,
-                IsAvailable = b.IsAvailable
-            });
+            return books.Select(MapToDto);
         }
 
         /// <summary>
@@ -48,6 +40,8 @@ namespace BookLendingService.Api.Services
         /// matching book is found.</returns>
         public async Task<BookDto?> GetByIdAsync(int id)
         {
+            if (id <= 0) return null;
+
             var book = await _repository.GetByIdAsync(id);
             return book is null ? null : MapToDto(book);
         }
@@ -60,6 +54,8 @@ namespace BookLendingService.Api.Services
         /// representing the newly created book.</returns>
         public async Task<BookDto> CreateAsync(CreateBookDto dto)
         {
+
+            ArgumentNullException.ThrowIfNull(dto);
             var book = new Book
             {
                 Title = dto.Title,
@@ -70,6 +66,7 @@ namespace BookLendingService.Api.Services
             };
 
             await _repository.AddAsync(book);
+            await _repository.SaveChangesAsync();
             return MapToDto(book);
         }
 
@@ -84,12 +81,15 @@ namespace BookLendingService.Api.Services
         /// langword="null"/> if the book does not exist or is not available.</returns>
         public async Task<BookDto?> CheckoutAsync(int id)
         {
+            if (id <= 0) return null;
+
             var book = await _repository.GetByIdAsync(id);
             if (book is null || !book.IsAvailable)
                 return null;
 
             book.IsAvailable = false;
             await _repository.UpdateAsync(book);
+            await _repository.SaveChangesAsync();
 
             return MapToDto(book);
         }
@@ -102,12 +102,15 @@ namespace BookLendingService.Api.Services
         /// langword="null"/> if the book does not exist or is already available.</returns>
         public async Task<BookDto?> ReturnAsync(int id)
         {
+            if (id <= 0) return null;
+
             var book = await _repository.GetByIdAsync(id);
             if (book is null || book.IsAvailable)
                 return null;
 
             book.IsAvailable = true;
             await _repository.UpdateAsync(book);
+            await _repository.SaveChangesAsync();
 
             return MapToDto(book);
         }

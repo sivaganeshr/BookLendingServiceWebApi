@@ -1,13 +1,7 @@
 ﻿using BookLendingService.Api.DTOs;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookLendingService.Tests.Integration
 {
@@ -36,7 +30,7 @@ namespace BookLendingService.Tests.Integration
             };
 
             // Act: create a book
-            var postResponse = await _client.PostAsJsonAsync("/books", createDto);
+            var postResponse = await _client.PostAsJsonAsync("/api/books", createDto);
 
             // Assert create
             Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
@@ -45,7 +39,7 @@ namespace BookLendingService.Tests.Integration
             Assert.Equal(createDto.Title, created!.Title);
 
             // Act: get all books
-            var getResponse = await _client.GetAsync("/books");
+            var getResponse = await _client.GetAsync("/api/books");
             getResponse.EnsureSuccessStatusCode();
 
             var books = await getResponse.Content.ReadFromJsonAsync<List<BookDto>>();
@@ -62,30 +56,39 @@ namespace BookLendingService.Tests.Integration
             {
                 Title = "Test integration",
                 Author = "Tester",
-                ISBN = "Test112",
+                ISBN = "12-545",
                 PublishedYear = 2024
             };
 
-            var postResponse = await _client.PostAsJsonAsync("/books", createDto);
+            var postResponse = await _client.PostAsJsonAsync("/api/books", createDto);
             postResponse.EnsureSuccessStatusCode();
+            
             var created = await postResponse.Content.ReadFromJsonAsync<BookDto>();
             Assert.NotNull(created);
 
             // Checkout the book
-            var checkoutResponse = await _client.PostAsync($"/books/{created!.Id}/checkout", null);
+            var checkoutResponse = await _client.PostAsync($"/api/books/{created!.Id}/checkout", null);
             checkoutResponse.EnsureSuccessStatusCode();
-            var checkedOut = await checkoutResponse.Content.ReadFromJsonAsync<BookDto>();
 
+            var checkedOut = await checkoutResponse.Content.ReadFromJsonAsync<BookDto>();
             Assert.NotNull(checkedOut);
             Assert.False(checkedOut!.IsAvailable);
 
             // Return the book
-            var returnResponse = await _client.PostAsync($"/books/{created.Id}/return", null);
+            var returnResponse = await _client.PostAsync($"/api/books/{created.Id}/return", null);
             returnResponse.EnsureSuccessStatusCode();
+
             var returned = await returnResponse.Content.ReadFromJsonAsync<BookDto>();
 
             Assert.NotNull(returned);
             Assert.True(returned!.IsAvailable);
+        }
+
+        [Fact]
+        public async Task GetById_With_Invalid_Id_Should_Return_BadRequest()
+        {
+            var response = await _client.GetAsync("/api/books/0");
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
     }
 }

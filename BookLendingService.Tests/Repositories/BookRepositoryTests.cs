@@ -34,15 +34,17 @@ namespace BookLendingService.Tests.Repositories
             };
 
             await _repository.AddAsync(book);
-
+            
+            await _context.SaveChangesAsync();
             _context.Books.Count().Should().Be(1);
+            _context.Entry(book).State.Should().Be(EntityState.Unchanged);
         }
 
         [Fact]
         public async Task GetAllAsync_Should_Return_All_Books()
         {
-            _context.Books.Add(new Book { Title = "A" });
-            _context.Books.Add(new Book { Title = "B" });
+            _context.Books.Add(new Book { Title = "Abc" });
+            _context.Books.Add(new Book { Title = "xyz" });
             await _context.SaveChangesAsync();
 
             var result = await _repository.GetAllAsync();
@@ -72,6 +74,7 @@ namespace BookLendingService.Tests.Repositories
 
             book.Title = "New Title";
             await _repository.UpdateAsync(book);
+            await _repository.SaveChangesAsync();
 
             var updated = await _context.Books.FindAsync(book.Id);
             updated!.Title.Should().Be("New Title");
@@ -85,6 +88,12 @@ namespace BookLendingService.Tests.Repositories
             await _repository.SaveChangesAsync();
 
             _context.Books.Count().Should().Be(1);
+        }
+
+        [Fact]
+        public async Task AddAsync_Should_Throw_When_Book_Is_Null()
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AddAsync(null!));
         }
     }
 }

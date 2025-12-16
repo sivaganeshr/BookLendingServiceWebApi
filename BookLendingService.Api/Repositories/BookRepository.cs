@@ -43,34 +43,27 @@ namespace BookLendingService.Api.Repositories
         /// <summary>
         /// Asynchronously adds a new book to the data store.
         /// </summary>
-        /// <remarks>The method saves changes to the underlying data store after adding the book.
+        /// <remarks>This method only adds the entity to the change tracker. Call <see cref="SaveChangesAsync"/> to persist changes.
         /// </remarks>
-        /// <param name="book">The <see cref="Book"/> entity to add. Cannot be <c>null</c>.</param>
-        /// <returns>A task that represents the asynchronous add operation.</returns>
         public async Task AddAsync(Book book)
         {
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+            ArgumentNullException.ThrowIfNull(book);
+            await _context.Books.AddAsync(book);
         }
 
         /// <summary>
         /// Updates the specified <see cref="Book"/> entity in the data store asynchronously.
         /// </summary>
-        /// <param name="book">The <see cref="Book"/> entity to update. Must not be <c>null</c>.</param>
-        /// <returns>A task that represents the asynchronous update operation.</returns>
-        public async Task UpdateAsync(Book book)
+        public Task UpdateAsync(Book book)
         {
+            ArgumentNullException.ThrowIfNull(book);
             _context.Books.Update(book);
-            await _context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Asynchronously saves all changes made in the current context to the underlying database.
+        /// Persists all pending changes in the current context to the database.
         /// </summary>
-        /// <remarks>This method commits any pending changes tracked by the context, such as inserts,
-        /// updates, or deletes, to the database. If no changes are detected, no database operations are
-        /// performed.</remarks>
-        /// <returns>A task that represents the asynchronous save operation.</returns>
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

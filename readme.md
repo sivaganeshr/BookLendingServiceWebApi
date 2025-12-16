@@ -1,6 +1,6 @@
 ﻿# Book Lending Service
 
-This is a sample Book Lending API behalf of the assessment, built using .NET 8. It demonstrates Web API development,Code quality and structure, API design and usability, Environment setup and deployment readiness, data persistence using Entity Framework Core with SQLite, testing(unit, Integration), Docker containerization, and cloud deployment using Terraform and AWS ECS Fargate with an Application Load Balancer.
+This is a sample Book Lending API on behalf of the assessment, built using .NET 8. It demonstrates Web API development,Code quality and structure, API design and usability, Environment setup and deployment readiness, data persistence using Entity Framework Core with SQLite, testing(unit, Integration), Docker containerization, and cloud deployment using Terraform and AWS ECS Fargate with an Application Load Balancer.
 
 ## Technologies Used
 
@@ -98,7 +98,7 @@ Added middleware to handle the exceptions globally.
     The API will be accessible at:
 
     ```
-    http://localhost:8080/books
+    http://localhost:8080/api/books
     ```
 
 ## How to Deploy in AWS
@@ -133,7 +133,7 @@ Added middleware to handle the exceptions globally.
     After successful deployment, Terraform prints the Application Load Balancer DNS name(alb_dns_name). Open the API using:
 
     ```
-    http://<alb_dns_name>/books
+    http://<alb_dns_name>/api/books
     ```
 
 Additionally I added some result screen shots please go through it. 
